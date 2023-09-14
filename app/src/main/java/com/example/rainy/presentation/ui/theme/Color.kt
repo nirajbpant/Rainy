@@ -1,4 +1,4 @@
-package com.example.rainy.ui.theme
+package com.example.rainy.presentation.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

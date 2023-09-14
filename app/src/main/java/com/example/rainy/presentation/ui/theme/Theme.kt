@@ -1,4 +1,4 @@
-package com.example.rainy.ui.theme
+package com.example.rainy.presentation.ui.theme
 
 import android.app.Activity
 import android.os.Build
