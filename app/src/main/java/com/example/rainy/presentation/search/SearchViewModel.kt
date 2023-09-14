@@ -1,6 +1,5 @@
 package com.example.rainy.presentation.search
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.rainy.data.models.WeatherResponse
@@ -8,7 +7,7 @@ import com.example.rainy.data.models.resource.Resource
 import com.example.rainy.domain.usecases.WeatherUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import androidx.compose.runtime.*
+import coil.request.ImageResult
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
@@ -21,9 +20,21 @@ class SearchViewModel @Inject constructor(
     private val _state = MutableStateFlow<Resource<WeatherResponse>>(Resource.Initial())
     val state: StateFlow<Resource<WeatherResponse>> = _state
 
+    private val _splashState = MutableStateFlow<SplashState>(SplashState.Loading)
+    val splashState: StateFlow<SplashState> = _splashState
+
+    val imageMap = HashMap<String, ImageResult?>()
+
     init {
-        viewModelScope.launch {
-           var result = weatherUseCases.getCookieWeatherData()
+    viewModelScope.launch {
+        val images = weatherUseCases.getWeatherIcons()
+        if(!images.isNullOrEmpty())
+            for(image in images){
+                imageMap[image.request.toString()] = image
+            }
+        _splashState.value = SplashState.Loaded
+        _state.value = Resource.Loading()
+        var result = weatherUseCases.getCookieWeatherData()
             when(result){
                 is Resource.Success ->{
                     _state.value = result
@@ -32,12 +43,11 @@ class SearchViewModel @Inject constructor(
                     _state.value = result
                 }
                 else -> {}
-            }
         }
+    }
     }
 
     fun initializeLocationWeather(currentCity: String){
-        Log.d("Checking", "Is this called")
         viewModelScope.launch {
             _state.value = Resource.Loading()
             var result =  weatherUseCases.getWeatherByCity(currentCity)
