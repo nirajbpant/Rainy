@@ -171,11 +171,6 @@ fun WeatherPanel(result: WeatherResponse) {
                 fontSize = 18.sp
             )
             Spacer(modifier = Modifier.height(16.dp))
-//            GlideImage(
-//                data = "https://openweathermap.org/img/w/${result.weather[0].icon}.png",
-//                contentDescription = null,
-//                modifier = Modifier.size(100.dp)
-//            )
         }
     }
 }

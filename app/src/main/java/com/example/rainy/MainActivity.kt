@@ -41,8 +41,9 @@ class MainActivity : ComponentActivity() {
                SearchScreen(viewModel = viewModel)
             }
         }
-        fusedLocationClient = FusedLocationProviderClient(this)
+
         permissionHandler.requestLocationPermission(this, locationPermissionRequestCode)
+        fusedLocationClient = FusedLocationProviderClient(this)
     }
 
     /* Todo Given more time the methods below this comment would be its own repository for location information
@@ -86,7 +87,6 @@ class MainActivity : ComponentActivity() {
     private val locationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult) {
             locationResult.lastLocation?.let { location ->
-                // Handle the received location here
                 val cityName = getCityNameFromLocation(location)
                 viewModel.initializeLocationWeather(cityName)
             }
