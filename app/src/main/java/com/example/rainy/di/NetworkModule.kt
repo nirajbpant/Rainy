@@ -1,8 +1,10 @@
 package com.example.rainy.di
 
-
+import android.app.Application
+import android.content.Context
 import com.example.rainy.BuildConfig
 import com.example.rainy.core.constants.Constants.API_BASE_URL
+import com.example.rainy.data.network.ConnectivityInterceptor
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import dagger.Module
@@ -19,11 +21,17 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 open class NetworkModule {
 
-    open val interceptor: HttpLoggingInterceptor by lazy {
+    private val interceptor: HttpLoggingInterceptor by lazy {
         HttpLoggingInterceptor().apply {
             this.level = HttpLoggingInterceptor.Level.BODY
         }
     }
+
+
+    @Provides
+    @Singleton
+    fun provideContext(application: Application): Context = application
+
 
     @Provides
     @Singleton
@@ -34,12 +42,22 @@ open class NetworkModule {
 
     @Provides
     @Singleton
-    internal fun providesOkHttpClient() =
-        OkHttpClient.Builder().apply {
-            if (BuildConfig.DEBUG) {
-                addInterceptor(interceptor)
-            }
-        }.build()
+    fun provideConnectivityInterceptor(context: Context): ConnectivityInterceptor {
+        return ConnectivityInterceptor(context)
+    }
+
+
+    @Provides
+    @Singleton
+    internal fun providesOkHttpClient(
+        connectivityInterceptor: ConnectivityInterceptor,
+        gson: Gson
+    ): OkHttpClient = OkHttpClient.Builder().apply {
+        if (BuildConfig.DEBUG) {
+            addInterceptor(interceptor)
+        }
+        addInterceptor(connectivityInterceptor)
+    }.build()
 
     @Provides
     @Singleton
